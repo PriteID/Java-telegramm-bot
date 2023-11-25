@@ -7,10 +7,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class BotConnection extends TelegramLongPollingCommandBot {
 
     public BotConnection() {
-        register(new StartCommand());
-        register(new BotCommandHelp());
-        register(new BotCommandAbout());
-        register(new BotCommandAuthors());
+            register(new StartCommand());
+            register(new BotCommandHelp());
+            register(new BotCommandAbout());
+            register(new BotCommandAuthors());
+            register(new BotCommandExchangeRate());
     }
 
     @Override
