@@ -26,7 +26,7 @@ import java.util.Objects;
 
 
 public class BotCommandExchangeRate extends BotCommand {
-    public BotCommandExchangeRate() { super("exchange_rate", "описание cost");
+    public BotCommandExchangeRate() { super("exchange_rate", "Показывает вам актуальный курс валют(для подробностей напишите exchange_rate)");
         String fileName = "helpAboutList.txt";
 
         try {
@@ -146,11 +146,11 @@ public class BotCommandExchangeRate extends BotCommand {
             if (dateCheckFlag) {
                 text = "Введена не корректаня или не достигнутая дата!";
             } else {
-                currencyExchangeRate = getExchangeRate(baseCurrency,targetCurrency,DataDay,DataMonth,DataYear);
+                currencyExchangeRate =  Math.round(getExchangeRate(baseCurrency,targetCurrency,DataDay,DataMonth,DataYear) * 10000.0) / 10000.0;
                 if (currencyExchangeRate == 0) {
                     text = "На заданную вами дату, одну из валют Центральный Банк РФ не отслеживал!";
                 } else {
-                    text = Double.toString(currencyExchangeRate);
+                    text = "1 "+baseCurrency+" соответствует "+Double.toString(currencyExchangeRate)+"\n "+targetCurrency;
                 }
             }
 
