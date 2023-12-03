@@ -26,23 +26,34 @@ import java.util.Objects;
 
 
 public class BotCommandExchangeRate extends BotCommand {
-    public BotCommandExchangeRate() { super("exchange_rate", "Показывает вам актуальный курс валют(для подробностей напишите exchange_rate)");
+    public BotCommandExchangeRate() {
+        super("exchange_rate", "Показывает вам актуальный курс валют(для подробностей напишите exchange_rate)");
         String fileName = "helpAboutList.txt";
 
         try {
             FileWriter fileWriter = new FileWriter(fileName, true);
-            fileWriter.write(getCommandIdentifier()+" - "+getDescription()+"\n");
+            fileWriter.write(getCommandIdentifier() + " - " + getDescription() + "\n");
             fileWriter.close();
         } catch (IOException e) {
             System.out.println("Ошибка при записи данных в файл: " + e.getMessage());
         }
     }
 
-    private double getExchangeRate(String baseCurrency, String targetCurrency, String DataDay, String DataMonth, String DataYear) {
+    private double getExchangeRate(String baseCurrency, String targetCurrency, String dataDay, String dataMonth, String dataYear) {
         double exchangeRate = 0.0;
 
         try {
-            String url = "http://www.cbr.ru/scripts/XML_daily.asp?date_req="+DataDay+"/"+DataMonth+"/"+DataYear;
+
+            if (dataDay.length() == 1) {
+                dataDay = "0" + dataDay;
+            }
+            if (dataMonth.length() == 1) {
+                dataMonth = "0" + dataMonth;
+            }
+
+            String url = "http://www.cbr.ru/scripts/XML_daily.asp?date_req=" + dataDay + "/" + dataMonth + "/" + dataYear;
+
+            System.out.println(url);
 
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
@@ -91,66 +102,56 @@ public class BotCommandExchangeRate extends BotCommand {
     }
 
     @Override
-    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments){
+    public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 
         if (arguments != null && arguments.length > 0) {
             boolean dateCheckFlag = false;
             double currencyExchangeRate;
-            String DataDay;
-            String DataMonth;
-            String DataYear;
+            String dataDay;
+            String dataMonth;
+            String dataYear;
             String text;
             String baseCurrency = arguments[0];
             String targetCurrency = arguments[1];
             LocalDate currentDate = LocalDate.now();
-            String todayDataDay = String.valueOf(currentDate.getDayOfMonth());
+            String todaydataDay = String.valueOf(currentDate.getDayOfMonth());
             String todayDataMonth = String.valueOf(currentDate.getMonthValue());
             String todayDataYear = String.valueOf(currentDate.getYear());
 
 
             if (arguments.length > 2) {
-                DataYear = arguments[4];
+                dataDay = arguments[2];
+                dataMonth = arguments[3];
+                dataYear = arguments[4];
 
-                if (arguments[2].length() == 1) {
-                    DataDay = "0" + arguments[2];
-                } else {
-                    DataDay = arguments[2];
-                }
-
-                if (arguments[3].length() == 1){
-                    DataMonth = "0"+arguments[3];
-                } else {
-                    DataMonth = arguments[3];
-                }
-
-                if (Integer.parseInt(DataDay) > Integer.parseInt(todayDataDay)) {
+                if (Integer.parseInt(dataDay) > Integer.parseInt(todaydataDay)) {
                     dateCheckFlag = true;
                 }
-                if (Integer.parseInt(DataMonth) < Integer.parseInt(todayDataMonth) && dateCheckFlag) {
+                if (Integer.parseInt(dataMonth) < Integer.parseInt(todayDataMonth) && dateCheckFlag) {
                     dateCheckFlag = false;
-                } else if(Integer.parseInt(DataMonth) > Integer.parseInt(todayDataMonth)){
+                } else if (Integer.parseInt(dataMonth) > Integer.parseInt(todayDataMonth)) {
                     dateCheckFlag = true;
                 }
-                if (Integer.parseInt(DataYear) < Integer.parseInt(todayDataYear) && dateCheckFlag) {
+                if (Integer.parseInt(dataYear) < Integer.parseInt(todayDataYear) && dateCheckFlag && dateCheckFlag) {
                     dateCheckFlag = false;
-                } else if(Integer.parseInt(DataYear) > Integer.parseInt(todayDataYear)){
+                } else if (Integer.parseInt(dataYear) > Integer.parseInt(todayDataYear)) {
                     dateCheckFlag = true;
                 }
 
             } else {
-                DataDay = todayDataDay;
-                DataMonth = todayDataMonth;
-                DataYear = todayDataYear;
+                dataDay = todaydataDay;
+                dataMonth = todayDataMonth;
+                dataYear = todayDataYear;
             }
 
             if (dateCheckFlag) {
                 text = "Введена не корректаня или не достигнутая дата!";
             } else {
-                currencyExchangeRate =  Math.round(getExchangeRate(baseCurrency,targetCurrency,DataDay,DataMonth,DataYear) * 10000.0) / 10000.0;
+                currencyExchangeRate = Math.round(getExchangeRate(baseCurrency, targetCurrency, dataDay, dataMonth, dataYear) * 10000.0) / 10000.0;
                 if (currencyExchangeRate == 0) {
                     text = "На заданную вами дату, одну из валют Центральный Банк РФ не отслеживал!";
                 } else {
-                    text = "1 "+baseCurrency+" соответствует "+Double.toString(currencyExchangeRate)+"\n "+targetCurrency;
+                    text = "1 " + baseCurrency + " соответствует " + Double.toString(currencyExchangeRate) + "\n " + targetCurrency;
                 }
             }
 
@@ -165,15 +166,15 @@ public class BotCommandExchangeRate extends BotCommand {
             }
 
         } else {
-            String DataDay;
-            String DataMonth;
-            String DataYear;
+            String dataDay;
+            String dataMonth;
+            String dataYear;
             String text = null;
             LocalDate currentDate = LocalDate.now();
-            DataDay = String.valueOf(currentDate.getDayOfMonth());
-            DataMonth = String.valueOf(currentDate.getMonthValue());
-            DataYear = String.valueOf(currentDate.getYear());
-            String url = "http://www.cbr.ru/scripts/XML_daily.asp?date_req="+DataDay+"/"+DataMonth+"/"+DataYear;
+            dataDay = String.valueOf(currentDate.getDayOfMonth());
+            dataMonth = String.valueOf(currentDate.getMonthValue());
+            dataYear = String.valueOf(currentDate.getYear());
+            String url = "http://www.cbr.ru/scripts/XML_daily.asp?date_req=" + dataDay + "/" + dataMonth + "/" + dataYear;
 
             try {
                 HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
@@ -197,7 +198,7 @@ public class BotCommandExchangeRate extends BotCommand {
                 String listOfCurrenciesCharCode;
                 String listOfCurrenciesName;
 
-                StringBuilder textBuilder = new StringBuilder("Вы можете узнать отношение курса одной валюты к другой валюте: /exchange_rate USD AUD, так вы получите курс Доллара к Австралийскому доллару на сегодняшний день."+"\n"+"Список доступных валют:"+"\n\n");
+                StringBuilder textBuilder = new StringBuilder("Вы можете узнать отношение курса одной валюты к другой валюте: /exchange_rate USD AUD, так вы получите курс Доллара к Австралийскому доллару на сегодняшний день." + "\n" + "Список доступных валют:" + "\n\n");
                 textBuilder.append("RUB - Российский рубль\n");
                 for (int i = 0; i < valuteNodes.getLength(); i++) {
                     Element valuteElement = (Element) valuteNodes.item(i);
@@ -225,3 +226,4 @@ public class BotCommandExchangeRate extends BotCommand {
         }
     }
 }
+///

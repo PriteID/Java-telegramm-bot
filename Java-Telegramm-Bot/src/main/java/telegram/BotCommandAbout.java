@@ -14,12 +14,13 @@ import java.io.IOException;
 
 
 public class BotCommandAbout extends BotCommand {
-    public BotCommandAbout() { super("about", "кратко описываю выбранную вами комманду");
+    public BotCommandAbout() {
+        super("about", "кратко описываю выбранную вами комманду");
         String fileName = "helpAboutList.txt";
 
         try {
             FileWriter fileWriter = new FileWriter(fileName, true);
-            fileWriter.write(getCommandIdentifier()+" - "+getDescription()+"\n");
+            fileWriter.write(getCommandIdentifier() + " - " + getDescription() + "\n");
             fileWriter.close();
         } catch (IOException e) {
             System.out.println("Ошибка при записи данных в файл: " + e.getMessage());
@@ -52,7 +53,7 @@ public class BotCommandAbout extends BotCommand {
                         }
                     }
                 }
-                if(!CommandIsFound){
+                if (!CommandIsFound) {
                     text.append("Такую команду я не смогу выполнить. Проверьте правильность написания выбранной команды");
                 }
             } catch (IOException e) {
@@ -73,3 +74,4 @@ public class BotCommandAbout extends BotCommand {
         }
     }
 }
+///

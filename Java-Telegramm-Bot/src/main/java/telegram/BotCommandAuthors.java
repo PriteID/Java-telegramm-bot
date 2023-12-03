@@ -12,12 +12,13 @@ import java.io.IOException;
 
 
 public class BotCommandAuthors extends BotCommand {
-    public BotCommandAuthors() { super("authors", "демонстрирую вам списк моих авторов");
+    public BotCommandAuthors() {
+        super("authors", "демонстрирую вам списк моих авторов");
         String fileName = "helpAboutList.txt";
 
         try {
             FileWriter fileWriter = new FileWriter(fileName, true);
-            fileWriter.write(getCommandIdentifier()+" - "+getDescription()+"\n");
+            fileWriter.write(getCommandIdentifier() + " - " + getDescription() + "\n");
             fileWriter.close();
         } catch (IOException e) {
             System.out.println("Ошибка при записи данных в файл: " + e.getMessage());
@@ -26,7 +27,7 @@ public class BotCommandAuthors extends BotCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        String text = "Мои авторы:"+"\n"+"Лаврентьев Максим"+"\n"+"Волков Михаил";
+        String text = "Мои авторы:" + "\n" + "Лаврентьев Максим" + "\n" + "Волков Михаил";
         SendMessage message = new SendMessage();
         message.setText(text);
         message.setChatId(Long.toString(chat.getId()));
@@ -38,3 +39,4 @@ public class BotCommandAuthors extends BotCommand {
         }
     }
 }
+///

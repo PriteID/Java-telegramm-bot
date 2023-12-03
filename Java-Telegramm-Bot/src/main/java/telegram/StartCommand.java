@@ -19,7 +19,8 @@ import java.util.List;
 
 public class StartCommand extends BotCommand {
 
-    public StartCommand() { super("start", "Команда для запуска бота");
+    public StartCommand() {
+        super("start", "Команда для запуска бота");
         String filePath = "helpAboutList.txt";
         File file = new File(filePath);
         if (file.exists()) file.delete();
@@ -54,5 +55,5 @@ public class StartCommand extends BotCommand {
             e.printStackTrace();
         }
     }
-
 }
+///

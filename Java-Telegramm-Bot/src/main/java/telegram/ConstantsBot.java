@@ -8,7 +8,7 @@ public class ConstantsBot {
     public String TOKEN;
 
     public ConstantsBot() {
-        try (FileReader fail = new FileReader("D:\\constants.txt")) {
+        try (FileReader fail = new FileReader("C:\\constants.txt")) {
             int count;
             StringBuilder result = new StringBuilder();
             while ((count = fail.read()) != -1) {
@@ -26,3 +26,4 @@ public class ConstantsBot {
         }
     }
 }
+///

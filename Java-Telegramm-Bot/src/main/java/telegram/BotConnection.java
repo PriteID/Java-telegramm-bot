@@ -7,16 +7,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class BotConnection extends TelegramLongPollingCommandBot {
 
     public BotConnection() {
-            register(new StartCommand());
-            register(new BotCommandHelp());
-            register(new BotCommandAbout());
-            register(new BotCommandAuthors());
-            register(new BotCommandExchangeRate());
+        register(new StartCommand());
+        register(new BotCommandHelp());
+        register(new BotCommandAbout());
+        register(new BotCommandAuthors());
+        register(new BotCommandExchangeRate());
     }
 
     @Override
     public void processNonCommandUpdate(Update update) {
-            System.out.println("отсутствует команда: " + update.getMessage().getText());
+        System.out.println("отсутствует команда: " + update.getMessage().getText());
     }
 
     @Override
@@ -29,3 +29,4 @@ public class BotConnection extends TelegramLongPollingCommandBot {
         return new ConstantsBot().TOKEN;
     }
 }
+///

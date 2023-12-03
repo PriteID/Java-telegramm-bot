@@ -14,12 +14,13 @@ import java.io.BufferedReader;
 
 
 public class BotCommandHelp extends BotCommand {
-    public BotCommandHelp() { super("help", "вывожу список доступных команд");
+    public BotCommandHelp() {
+        super("help", "вывожу список доступных команд");
         String fileName = "helpAboutList.txt";
 
         try {
             FileWriter fileWriter = new FileWriter(fileName, true);
-            fileWriter.write(getCommandIdentifier()+" - "+getDescription()+"\n");
+            fileWriter.write(getCommandIdentifier() + " - " + getDescription() + "\n");
             fileWriter.close();
         } catch (IOException e) {
             System.out.println("Ошибка при записи данных в файл: " + e.getMessage());
@@ -29,7 +30,7 @@ public class BotCommandHelp extends BotCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
         StringBuilder text = new StringBuilder();
-        text.append("Я способен реагировать на команды:"+"\n");
+        text.append("Я способен реагировать на команды:" + "\n");
 
         String fileName = "helpAboutList.txt";
 
@@ -57,3 +58,4 @@ public class BotCommandHelp extends BotCommand {
         }
     }
 }
+///
