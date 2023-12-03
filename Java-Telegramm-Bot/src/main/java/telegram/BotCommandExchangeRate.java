@@ -132,7 +132,7 @@ public class BotCommandExchangeRate extends BotCommand {
                 } else if (Integer.parseInt(dataMonth) > Integer.parseInt(todayDataMonth)) {
                     dateCheckFlag = true;
                 }
-                if (Integer.parseInt(dataYear) < Integer.parseInt(todayDataYear) && dateCheckFlag && dateCheckFlag) {
+                if (Integer.parseInt(dataYear) < Integer.parseInt(todayDataYear) && dateCheckFlag) {
                     dateCheckFlag = false;
                 } else if (Integer.parseInt(dataYear) > Integer.parseInt(todayDataYear)) {
                     dateCheckFlag = true;
