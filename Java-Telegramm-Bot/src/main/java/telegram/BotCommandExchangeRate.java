@@ -226,4 +226,3 @@ public class BotCommandExchangeRate extends BotCommand {
         }
     }
 }
-///

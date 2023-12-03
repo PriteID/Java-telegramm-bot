@@ -29,4 +29,3 @@ public class BotConnection extends TelegramLongPollingCommandBot {
         return new ConstantsBot().TOKEN;
     }
 }
-///
