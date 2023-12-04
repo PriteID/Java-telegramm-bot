@@ -59,7 +59,7 @@ public class BotCommandExchangeRate extends BotCommand {
         }
     }
 
-    private double getExchangeRate(String baseCurrency, String targetCurrency, String dataDay, String dataMonth, String dataYear) {
+    public double getExchangeRate(String baseCurrency, String targetCurrency, String dataDay, String dataMonth, String dataYear) {
         double exchangeRate = 0.0;
 
         try {
@@ -72,8 +72,6 @@ public class BotCommandExchangeRate extends BotCommand {
             }
 
             String url = "http://www.cbr.ru/scripts/XML_daily.asp?date_req=" + dataDay + "/" + dataMonth + "/" + dataYear;
-
-            System.out.println(url);
 
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
