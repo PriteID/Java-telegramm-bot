@@ -114,7 +114,12 @@ public class BotCommandExchangeRate extends BotCommand {
                 targetCurrencyValue = 1;
             }
 
-            exchangeRate = baseCurrencyValue / targetCurrencyValue;
+            if (targetCurrencyValue != 0.0) {
+                exchangeRate = baseCurrencyValue / targetCurrencyValue;
+            } else {
+                exchangeRate = 0.0;
+            }
+
         } catch (IOException | ParserConfigurationException | SAXException e) {
             System.out.println("Ошибка при получении курса валюты: " + e.getMessage());
         }
@@ -126,10 +131,11 @@ public class BotCommandExchangeRate extends BotCommand {
 
         if (arguments != null && arguments.length > 0) {
             boolean dateCheckFlag = false;
+            boolean correctValueFlag = false;
             double currencyExchangeRate;
-            String dataDay;
-            String dataMonth;
-            String dataYear;
+            String dataDay = null;
+            String dataMonth = null;
+            String dataYear = null;
             String text;
             String baseCurrency = arguments[0];
             String targetCurrency = arguments[1];
@@ -138,29 +144,32 @@ public class BotCommandExchangeRate extends BotCommand {
             String todayDataMonth = String.valueOf(currentDate.getMonthValue());
             String todayDataYear = String.valueOf(currentDate.getYear());
 
-
-            if (arguments.length > 2) {
+            if (arguments.length == 5) {
                 dataDay = arguments[2];
                 dataMonth = arguments[3];
                 dataYear = arguments[4];
 
                 dateCheckFlag = validateDate(dataDay, dataMonth, dataYear, todaydataDay, todayDataMonth, todayDataYear);
-
-
-            } else {
+            } else if (arguments.length == 2) {
                 dataDay = todaydataDay;
                 dataMonth = todayDataMonth;
                 dataYear = todayDataYear;
+            } else {
+                correctValueFlag= true;
             }
 
-            if (dateCheckFlag) {
-                text = "Введена не корректаня или не достигнутая дата!";
+            if (correctValueFlag) {
+                text = "Вы ввели не обрабатываемые символы, проверьте корректрность написанного!";
             } else {
-                currencyExchangeRate = Math.round(getExchangeRate(baseCurrency, targetCurrency, dataDay, dataMonth, dataYear) * 10000.0) / 10000.0;
-                if (currencyExchangeRate == 0) {
-                    text = "На заданную вами дату, одну из валют Центральный Банк РФ не отслеживал!";
+                if (dateCheckFlag) {
+                    text = "Дата введена не корректно или дата не достигнута!";
                 } else {
-                    text = "1 " + baseCurrency + " соответствует " + Double.toString(currencyExchangeRate) + "\n " + targetCurrency;
+                    currencyExchangeRate = Math.round(getExchangeRate(baseCurrency, targetCurrency, dataDay, dataMonth, dataYear) * 10000.0) / 10000.0;
+                    if (currencyExchangeRate == 0) {
+                        text = "На заданную вами дату, одну из валют Центральный Банк РФ не отслеживал!";
+                    } else {
+                        text = "1 " + baseCurrency + " соответствует " + Double.toString(currencyExchangeRate) + "\n " + targetCurrency;
+                    }
                 }
             }
 
