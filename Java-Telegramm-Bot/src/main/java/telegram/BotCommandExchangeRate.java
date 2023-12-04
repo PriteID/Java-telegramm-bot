@@ -114,7 +114,12 @@ public class BotCommandExchangeRate extends BotCommand {
                 targetCurrencyValue = 1;
             }
 
-            exchangeRate = baseCurrencyValue / targetCurrencyValue;
+            if (targetCurrencyValue != 0.0) {
+                exchangeRate = baseCurrencyValue / targetCurrencyValue;
+            } else {
+                exchangeRate = 0.0;
+            }
+
         } catch (IOException | ParserConfigurationException | SAXException e) {
             System.out.println("Ошибка при получении курса валюты: " + e.getMessage());
         }
@@ -139,7 +144,7 @@ public class BotCommandExchangeRate extends BotCommand {
             String todayDataYear = String.valueOf(currentDate.getYear());
 
 
-            if (arguments.length > 2) {
+            if (arguments[2].matches("") && arguments[3].matches("") && arguments[4].matches("")) {
                 dataDay = arguments[2];
                 dataMonth = arguments[3];
                 dataYear = arguments[4];
@@ -154,7 +159,7 @@ public class BotCommandExchangeRate extends BotCommand {
             }
 
             if (dateCheckFlag) {
-                text = "Введена не корректаня или не достигнутая дата!";
+                text = "Введена не корректная или не достигнутая дата!";
             } else {
                 currencyExchangeRate = Math.round(getExchangeRate(baseCurrency, targetCurrency, dataDay, dataMonth, dataYear) * 10000.0) / 10000.0;
                 if (currencyExchangeRate == 0) {
