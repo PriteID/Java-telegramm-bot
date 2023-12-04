@@ -24,6 +24,9 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public class BotCommandExchangeRate extends BotCommand {
     public BotCommandExchangeRate() {
@@ -36,6 +39,23 @@ public class BotCommandExchangeRate extends BotCommand {
             fileWriter.close();
         } catch (IOException e) {
             System.out.println("Ошибка при записи данных в файл: " + e.getMessage());
+        }
+    }
+
+    public static boolean validateDate(String dataDay, String dataMonth, String dataYear, String todayDataDay, String todayDataMonth, String todayDataYear) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+            dateFormat.setLenient(false);
+
+            String inputDate = String.format("%02d.%02d.%04d", Integer.parseInt(dataDay), Integer.parseInt(dataMonth), Integer.parseInt(dataYear));
+            String todayDate = String.format("%02d.%02d.%04d", Integer.parseInt(todayDataDay), Integer.parseInt(todayDataMonth), Integer.parseInt(todayDataYear));
+
+            Date date = dateFormat.parse(inputDate);
+            Date today = dateFormat.parse(todayDate);
+
+            return date.after(today) || date.equals(today);
+        } catch (Exception e) {
+            return true;
         }
     }
 
@@ -124,19 +144,8 @@ public class BotCommandExchangeRate extends BotCommand {
                 dataMonth = arguments[3];
                 dataYear = arguments[4];
 
-                if (Integer.parseInt(dataDay) > Integer.parseInt(todaydataDay)) {
-                    dateCheckFlag = true;
-                }
-                if (Integer.parseInt(dataMonth) < Integer.parseInt(todayDataMonth) && dateCheckFlag) {
-                    dateCheckFlag = false;
-                } else if (Integer.parseInt(dataMonth) > Integer.parseInt(todayDataMonth)) {
-                    dateCheckFlag = true;
-                }
-                if (Integer.parseInt(dataYear) < Integer.parseInt(todayDataYear) && dateCheckFlag) {
-                    dateCheckFlag = false;
-                } else if (Integer.parseInt(dataYear) > Integer.parseInt(todayDataYear)) {
-                    dateCheckFlag = true;
-                }
+                dateCheckFlag = validateDate(dataDay, dataMonth, dataYear, todaydataDay, todayDataMonth, todayDataYear);
+
 
             } else {
                 dataDay = todaydataDay;
@@ -174,6 +183,14 @@ public class BotCommandExchangeRate extends BotCommand {
             dataDay = String.valueOf(currentDate.getDayOfMonth());
             dataMonth = String.valueOf(currentDate.getMonthValue());
             dataYear = String.valueOf(currentDate.getYear());
+
+            if (dataDay.length() == 1) {
+                dataDay = "0" + dataDay;
+            }
+            if (dataMonth.length() == 1) {
+                dataMonth = "0" + dataMonth;
+            }
+
             String url = "http://www.cbr.ru/scripts/XML_daily.asp?date_req=" + dataDay + "/" + dataMonth + "/" + dataYear;
 
             try {
