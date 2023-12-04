@@ -153,7 +153,7 @@ public class BotCommandExchangeRate extends BotCommand {
                 dataMonth = todayDataMonth;
                 dataYear = todayDataYear;
             } else {
-                correctValueFlag= true;
+                correctValueFlag = true;
             }
 
             if (correctValueFlag) {
