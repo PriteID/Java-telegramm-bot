@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.mockito.ArgumentCaptor;
@@ -76,6 +77,7 @@ public class BotCommandExchangeRateTest {
 
         assertFalse(result);
     }
+
     @Test
     public void testValidateDate_ValidDate_ReturnsFalse() {
         String dataDay = "30";
