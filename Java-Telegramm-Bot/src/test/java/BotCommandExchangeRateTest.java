@@ -34,7 +34,7 @@ public class BotCommandExchangeRateTest {
     public void testGetExchangeRate_WithValidCurrency_ShouldReturnNotCorrectRateFirst() {
 
         BotCommandExchangeRate botCommand = new BotCommandExchangeRate();
-        String baseCurrency = "XYI";
+        String baseCurrency = "USO1";
         String targetCurrency = "EUR";
         String dataDay = "01";
         String dataMonth = "01";
