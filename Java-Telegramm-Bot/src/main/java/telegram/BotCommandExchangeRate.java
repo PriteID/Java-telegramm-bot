@@ -108,6 +108,7 @@ public class BotCommandExchangeRate extends BotCommand {
             if (baseCurrency.equals("RUB")) {
                 baseCurrencyValue = 1;
             }
+
             if (targetCurrency.equals("RUB")) {
                 targetCurrencyValue = 1;
             }
@@ -131,13 +132,15 @@ public class BotCommandExchangeRate extends BotCommand {
             boolean dateCheckFlag = false;
             boolean correctValueFlag = false;
             double currencyExchangeRate;
+
+            LocalDate currentDate = LocalDate.now();
+
             String dataDay = null;
             String dataMonth = null;
             String dataYear = null;
             String text;
             String baseCurrency = arguments[0];
             String targetCurrency = arguments[1];
-            LocalDate currentDate = LocalDate.now();
             String todaydataDay = String.valueOf(currentDate.getDayOfMonth());
             String todayDataMonth = String.valueOf(currentDate.getMonthValue());
             String todayDataYear = String.valueOf(currentDate.getYear());
