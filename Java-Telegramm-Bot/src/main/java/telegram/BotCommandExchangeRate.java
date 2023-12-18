@@ -73,6 +73,8 @@ public class BotCommandExchangeRate extends BotCommand {
 
             String url = "http://www.cbr.ru/scripts/XML_daily.asp?date_req=" + dataDay + "/" + dataMonth + "/" + dataYear;
 
+            System.out.println(url);
+
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
 
