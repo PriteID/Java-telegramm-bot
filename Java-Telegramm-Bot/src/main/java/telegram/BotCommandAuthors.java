@@ -27,7 +27,7 @@ public class BotCommandAuthors extends BotCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        String text = "Мои авторы:" + "\n" + "Лаврентьев Максим" + "\n" + "Волков Михаил";
+        String text = "Мои авторы:" + "\n" + "Лаврентьев Максим " + "\n" + "Волков Михаил " + "\n" + "Боровиков Дмитрий ";
         SendMessage message = new SendMessage();
         message.setText(text);
         message.setChatId(Long.toString(chat.getId()));
