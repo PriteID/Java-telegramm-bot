@@ -29,6 +29,7 @@ import java.util.Date;
 
 
 public class BotCommandExchangeRate extends BotCommand {
+    UserCurrencyMemory userCurrencyMemory = new UserCurrencyMemory();
     public BotCommandExchangeRate() {
         super("exchange_rate", "Показывает вам актуальный курс валют(для подробностей напишите exchange_rate)");
         String fileName = "helpAboutList.txt";
@@ -127,47 +128,72 @@ public class BotCommandExchangeRate extends BotCommand {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
+        int userId = Math.toIntExact(user.getId());
 
-        if (arguments != null && arguments.length > 0) {
+        if (arguments.length != 0) {
             boolean dateCheckFlag = false;
             boolean correctValueFlag = false;
             double currencyExchangeRate;
-
             LocalDate currentDate = LocalDate.now();
-
             String dataDay = null;
             String dataMonth = null;
             String dataYear = null;
             String text;
             String baseCurrency = arguments[0];
-            String targetCurrency = arguments[1];
+            String targetCurrency = null;
+            if(arguments.length != 1)
+                targetCurrency = arguments[1];
             String todaydataDay = String.valueOf(currentDate.getDayOfMonth());
             String todayDataMonth = String.valueOf(currentDate.getMonthValue());
             String todayDataYear = String.valueOf(currentDate.getYear());
-
-            if (arguments.length == 5) {
-                dataDay = arguments[2];
-                dataMonth = arguments[3];
-                dataYear = arguments[4];
-
-                dateCheckFlag = validateDate(dataDay, dataMonth, dataYear, todaydataDay, todayDataMonth, todayDataYear);
-            } else if (arguments.length == 2) {
-                dataDay = todaydataDay;
-                dataMonth = todayDataMonth;
-                dataYear = todayDataYear;
-            } else {
-                correctValueFlag = true;
+            switch (arguments.length){
+                case(5):{
+                    userCurrencyMemory.rememberCurrency(userId, baseCurrency);
+                    userCurrencyMemory.rememberCurrency(userId, targetCurrency);
+                    dataDay = arguments[2];
+                    dataMonth = arguments[3];
+                    dataYear = arguments[4];
+                    dateCheckFlag = validateDate(dataDay, dataMonth, dataYear, todaydataDay, todayDataMonth, todayDataYear);
+                    break;
+                }
+                case(4):{
+                    targetCurrency = userCurrencyMemory.getMostUsedCurrency(userId);
+                    dataDay = arguments[1];
+                    dataMonth = arguments[2];
+                    dataYear = arguments[3];
+                    dateCheckFlag = validateDate(dataDay, dataMonth, dataYear, todaydataDay, todayDataMonth, todayDataYear);
+                    break;
+                }
+                case(2):{
+                    userCurrencyMemory.rememberCurrency(userId, baseCurrency);
+                    userCurrencyMemory.rememberCurrency(userId, targetCurrency);
+                    dataDay = todaydataDay;
+                    dataMonth = todayDataMonth;
+                    dataYear = todayDataYear;
+                    break;
+                }
+                case(1):{
+                    targetCurrency = userCurrencyMemory.getMostUsedCurrency(userId);
+                    dataDay = todaydataDay;
+                    dataMonth = todayDataMonth;
+                    dataYear = todayDataYear;
+                    break;
+                }
+                default: {
+                    correctValueFlag = true;
+                    break;
+                }
             }
 
             if (correctValueFlag) {
-                text = "Вы ввели не обрабатываемые символы, проверьте корректрность написанного!";
+                text = "Вы ввели неподдерживаемые символы, проверьте корректность написанного!";
             } else {
                 if (dateCheckFlag) {
-                    text = "Дата введена не корректно или дата не достигнута!";
+                    text = "Дата введена некорректно или дата еще не наступила!";
                 } else {
                     currencyExchangeRate = Math.round(getExchangeRate(baseCurrency, targetCurrency, dataDay, dataMonth, dataYear) * 10000.0) / 10000.0;
                     if (currencyExchangeRate == 0) {
-                        text = "На заданную вами дату, одну из валют Центральный Банк РФ не отслеживал!";
+                        text = "На заданную вами дату Центральный Банк РФ не отслеживал курс одной из валют!";
                     } else {
                         text = "1 " + baseCurrency + " соответствует " + Double.toString(currencyExchangeRate) + "\n " + targetCurrency;
                     }
@@ -180,7 +206,7 @@ public class BotCommandExchangeRate extends BotCommand {
             try {
                 absSender.execute(message);
             } catch (TelegramApiException e) {
-                System.out.println("не получилось отправить из-за:");
+                System.out.println("Не удалось отправить сообщение из-за ошибки:");
                 e.printStackTrace();
             }
 
@@ -234,7 +260,7 @@ public class BotCommandExchangeRate extends BotCommand {
                     System.out.println(listOfCurrenciesName);
                     textBuilder.append(listOfCurrenciesCharCode).append(" - ").append(listOfCurrenciesName).append("\n");
                 }
-                textBuilder.append("\nТак же вы можете указать дату после заданных валют: /exchange_rate USD AUD 01 01 1999");
+                textBuilder.append("\nТакже вы можете указать дату после заданных валют: /exchange_rate USD AUD 01 01 1999, также вы можете в дальнейшем указывать лишь одну валюту /exchange_rate AUD и вы получите курс заданной вами валюты относительно валюты которую вы чаще используете, но учтите, что введенная самая первая вами валюта будет выбрана как главная");
                 text = textBuilder.toString();
             } catch (IOException | ParserConfigurationException | SAXException e) {
                 System.out.println("Ошибка при получении данных: " + e.getMessage());
@@ -247,7 +273,7 @@ public class BotCommandExchangeRate extends BotCommand {
             try {
                 absSender.execute(message);
             } catch (TelegramApiException e) {
-                System.out.println("не получилось отправить из-за:");
+                System.out.println("Не удалось отправить сообщение из-за ошибки:");
                 e.printStackTrace();
             }
         }

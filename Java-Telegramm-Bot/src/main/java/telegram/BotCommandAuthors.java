@@ -9,9 +9,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 
 
 public class BotCommandAuthors extends BotCommand {
+
     public BotCommandAuthors() {
         super("authors", "демонстрирую вам списк моих авторов");
         String fileName = "helpAboutList.txt";
@@ -25,9 +27,10 @@ public class BotCommandAuthors extends BotCommand {
         }
     }
 
+
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        String text = "Мои авторы:" + "\n" + "Лаврентьев Максим" + "\n" + "Волков Михаил";
+        String text = "Мои авторы:" + "\n" + "Лаврентьев Максим" + "\n" + "Волков Михаил" + "\n" + "Боровиков Дмитрий";
         SendMessage message = new SendMessage();
         message.setText(text);
         message.setChatId(Long.toString(chat.getId()));
