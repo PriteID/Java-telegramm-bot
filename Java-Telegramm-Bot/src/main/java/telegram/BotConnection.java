@@ -12,6 +12,7 @@ public class BotConnection extends TelegramLongPollingCommandBot {
         register(new BotCommandAbout());
         register(new BotCommandAuthors());
         register(new BotCommandExchangeRate());
+        register(new BotCommandCurrencyChart());
     }
 
     @Override
