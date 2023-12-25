@@ -8,16 +8,17 @@ import org.knowm.xchart.style.Styler;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.awt.*;
 import java.io.*;
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 import java.io.BufferedReader;
@@ -27,7 +28,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -41,6 +41,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import static java.lang.Float.NaN;
 
 public class BotCommandCurrencyChart extends BotCommand {
+    private int startYear;
+    private List<String> seriesNames;
+    public int getStartYear(){
+        return startYear;
+    }
+    public List<String> getSeriesNames() {
+        return seriesNames;
+    }
+
     public BotCommandCurrencyChart() {
         super("currency_chart", "Показывает вам как менялся курс заданной/ых вами валют с заданного вами года. Пример: /currency_chart 2020 USD AUD ZAR RSD JPY");
         String fileName = "helpAboutList.txt";
@@ -64,7 +73,7 @@ public class BotCommandCurrencyChart extends BotCommand {
             for (int year = startYear; year <= currentDate.getYear(); year++) {
                 for (int month = 1; month <= 12; month += 2) {
                     if (month == 7 || month == 9 || month == 11) {
-                        continue; // Пропускаем месяцы июль, сентябрь и ноябрь
+                        continue;
                     }
 
                     LocalDate date = LocalDate.of(year, month, 1);
@@ -75,7 +84,6 @@ public class BotCommandCurrencyChart extends BotCommand {
                         String valueString = getString(currencyCode, url);
                         double value = Double.parseDouble(valueString.replace(",", "."));
 
-                        // Преобразование значения валюты в целочисленный формат (тип Integer)
                         int currencyValue = (int) value;
                         currencyValues.add(new Integer[]{currencyValue});
 
@@ -92,7 +100,7 @@ public class BotCommandCurrencyChart extends BotCommand {
         return yValues;
     }
 
-    private static String getString(String currencyCode, String url) throws IOException {
+    static String getString(String currencyCode, String url) throws IOException {
         URL obj = new URL(url);
         String xmlResponse = getXmlResponse(obj);
         int startIndex = xmlResponse.indexOf("<CharCode>" + currencyCode + "</CharCode>");
@@ -115,7 +123,6 @@ public class BotCommandCurrencyChart extends BotCommand {
         }
         reader.close();
 
-        // Обработка XML-ответа и извлечение значения валюты
         String xmlResponse = response.toString();
         return xmlResponse;
     }
@@ -123,7 +130,7 @@ public class BotCommandCurrencyChart extends BotCommand {
     public static XYChart createChart(List<Integer> xValues, List<List<Integer[]>> yValues, List<String> seriesNames) {
         XYChart chart = new XYChartBuilder().width(1080).height(1080).title("График").xAxisTitle("X").yAxisTitle("Y").build();
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
-        chart.getStyler().setLegendFont(new Font(Font.SANS_SERIF, Font.BOLD, 20)); // Установка размера шрифта для подписей
+        chart.getStyler().setLegendFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 
         for (int i = 0; i < yValues.size(); i++) {
             List<Integer[]> y = yValues.get(i);
@@ -141,7 +148,7 @@ public class BotCommandCurrencyChart extends BotCommand {
         return chart;
     }
 
-    private static boolean isInteger(Integer[] value) {
+    public static boolean isInteger(Integer[] value) {
         try {
             Integer.parseInt(String.valueOf(value[0]));
             return true;
@@ -234,13 +241,28 @@ public class BotCommandCurrencyChart extends BotCommand {
         }
     }
 
+    public static InlineKeyboardMarkup createCurrencyRemovalKeyboard(List<String> currencyNames) {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+
+        for (String currency : currencyNames) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText("Удалить " + currency);
+            button.setCallbackData("remove_currency_" + currency);
+            row.add(button);
+            rowList.add(row);
+        }
+
+        keyboardMarkup.setKeyboard(rowList);
+        return keyboardMarkup;
+    }
+
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
         List<String> correctNames = getNames();
-
-        boolean flagCorrectYear = checkNumberInRange(arguments[0]);
-
-        if (arguments.length < 2 && flagCorrectYear) {
+        boolean flagConfrimMessege = false;
+        if (arguments.length < 2) {
             StringBuilder text = new StringBuilder("Введите сначала год, а потом любое колл-во волют, график которых вы бы хотели отследить. Например: /currency_chart 2021 USD AUD \nСписок доступных валют:\n");
             for (String i : correctNames) {
                 text.append(i).append("\n");
@@ -255,12 +277,30 @@ public class BotCommandCurrencyChart extends BotCommand {
                 System.out.println("не получилось отправить из-за:");
                 e.printStackTrace();
             }
+            flagConfrimMessege = true;
         }
+        boolean flagCorrectYear = checkNumberInRange(arguments[0]);
 
-        if (flagCorrectYear) {
-            int startYear = Integer.parseInt(arguments[0]);
+        if (flagCorrectYear && !flagConfrimMessege) {
+            if (arguments[0].isEmpty()) {
+                StringBuilder text = new StringBuilder("Введите сначала год, а потом любое колл-во волют, график которых вы бы хотели отследить. Например: /currency_chart 2021 USD AUD \nСписок доступных валют:\n");
+                for (String i : correctNames) {
+                    text.append(i).append("\n");
+                }
+                SendMessage message = new SendMessage();
+                message.setText(Objects.requireNonNull(text.toString()));
+                message.setChatId(Long.toString(chat.getId()));
+
+                try {
+                    absSender.execute(message);
+                } catch (TelegramApiException e) {
+                    System.out.println("не получилось отправить из-за:");
+                    e.printStackTrace();
+                }
+            }
+            startYear = Integer.parseInt(arguments[0]);
             arguments = Arrays.copyOfRange(arguments, 1, arguments.length);
-            List<String> seriesNames = new ArrayList<>(Arrays.asList(arguments));
+            seriesNames = new ArrayList<>(Arrays.asList(arguments));
             List<String> wrongNames = new ArrayList<>();
             boolean correctFlag = true;
             for (String i : seriesNames) {
@@ -277,11 +317,11 @@ public class BotCommandCurrencyChart extends BotCommand {
                 List<Integer> xValues = generateXData(yValues);
 
                 XYChart chart = createChart(xValues, yValues, seriesNames);
-                chart.getStyler().setPlotGridLinesVisible(true); // Установка видимости сетки
-                chart.getStyler().setPlotGridLinesColor(new Color(200, 200, 200)); // Установка цвета сетки
+                chart.getStyler().setPlotGridLinesVisible(true);
+                chart.getStyler().setPlotGridLinesColor(new Color(200, 200, 200));
 
                 try {
-                    File chartImage = new File("C:\\Users\\Prite\\IdeaProjects\\Java-telegramm-bot\\Java-Telegramm-Bot\\chart.png");
+                    File chartImage = new File("C:\\Users\\paulj\\IdeaProjects\\Java-telegramm-bot1\\Java-Telegramm-Bot\\chart.png");
                     BitmapEncoder.saveBitmap(chart, chartImage.getAbsolutePath(), BitmapEncoder.BitmapFormat.PNG);
 
                     InputFile photo = new InputFile(chartImage);
@@ -291,6 +331,17 @@ public class BotCommandCurrencyChart extends BotCommand {
                     absSender.execute(sendPhoto);
                 } catch (IOException | TelegramApiException e) {
                     System.out.println("Ошибка при отправке изображения: " + e.getMessage());
+                }
+                List<String> currencyName = new ArrayList<>(Arrays.asList(arguments));
+                InlineKeyboardMarkup removalKeyboard = createCurrencyRemovalKeyboard(currencyName);
+                SendMessage message = new SendMessage();
+                message.setText("Теперь вы можете выбрать валюту которую хотите убрать с графика");
+                message.setChatId(Long.toString(chat.getId()));
+                message.setReplyMarkup(removalKeyboard);
+                try {
+                    absSender.execute(message);
+                } catch (TelegramApiException e) {
+                    System.out.println("Ошибка при создании кнопок: " + e.getMessage());
                 }
             } else {
                 String text;
@@ -310,7 +361,7 @@ public class BotCommandCurrencyChart extends BotCommand {
                     e.printStackTrace();
                 }
             }
-        } else {
+        } else if(!flagConfrimMessege){
             String text = "";
             text = "Введенная дата некорректна. Допустимый дипазон от 1999г. до наступившего года!";
             SendMessage message = new SendMessage();
@@ -325,4 +376,3 @@ public class BotCommandCurrencyChart extends BotCommand {
         }
     }
 }
-
